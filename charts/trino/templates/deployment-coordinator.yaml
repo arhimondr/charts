@@ -44,6 +44,8 @@ spec:
           secret:
             secretName: trino-password-authentication
         {{- end }}
+        - name: dump-volume
+          emptyDir: {}
       {{- if .Values.initContainers.coordinator }}
       initContainers:
       {{-  tpl (toYaml .Values.initContainers.coordinator) . | nindent 6 }}
@@ -77,7 +79,9 @@ spec:
             {{- if eq .Values.server.config.authenticationType "PASSWORD" }}
             - mountPath: {{ .Values.server.config.path }}/auth
               name: password-volume
-            {{- end }}   
+            {{- end }}
+            - mountPath: /data/trino/var/dump
+              name: dump-volume
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}

@@ -25,6 +25,8 @@ data:
     -XX:+UseGCOverheadLimit
     -XX:+ExplicitGCInvokesConcurrent
     -XX:+HeapDumpOnOutOfMemoryError
+    -XX:HeapDumpPath=/data/trino/var/dump/staging_oom_heap_dump.hprof
+    -XX:OnOutOfMemoryError="mv -u /data/trino/var/dump/staging_oom_heap_dump.hprof /data/trino/var/dump/latest_oom_heap_dump.hprof"
     -XX:+ExitOnOutOfMemoryError
     -Djdk.attach.allowAttachSelf=true
     -XX:-UseBiasedLocking
