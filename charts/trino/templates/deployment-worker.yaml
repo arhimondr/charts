@@ -60,12 +60,16 @@ spec:
             httpGet:
               path: /v1/info
               port: http
+            periodSeconds: 60
+            failureThreshold: 5
           readinessProbe:
             httpGet:
               path: /v1/info
               port: http
           resources:
             {{- toYaml .Values.worker.resources | nindent 12 }}
+      # Give up to 5m for a container to shutdown gracefully before killing it with -9
+      terminationGracePeriodSeconds: 300
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

@@ -90,12 +90,15 @@ spec:
             httpGet:
               path: /v1/info
               port: http
+            periodSeconds: 60
+            failureThreshold: 5
           readinessProbe:
             httpGet:
               path: /v1/info
               port: http
           resources:
             {{- toYaml .Values.coordinator.resources | nindent 12 }}
+      terminationGracePeriodSeconds: 300
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
