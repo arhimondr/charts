@@ -24,6 +24,12 @@ spec:
         component: worker
     spec:
       serviceAccountName: {{ include "trino.serviceAccountName" . }}
+      {{- with .Values.securityContext }}
+      securityContext:
+        runAsUser: {{ .runAsUser }}
+        runAsGroup: {{ .runAsGroup }}
+        fsGroup: {{ .fsGroup }}
+      {{- end }}
       volumes:
         - name: config-volume
           configMap:
@@ -31,7 +37,7 @@ spec:
         - name: catalog-volume
           configMap:
             name: {{ template "trino.catalog" . }}
-        - name: dump-volume
+        - name: persistent-volume
           emptyDir: {}
       {{- if .Values.initContainers.worker }}
       initContainers:
@@ -50,8 +56,8 @@ spec:
               name: config-volume
             - mountPath: {{ .Values.server.config.path }}/catalog
               name: catalog-volume
-            - mountPath: /data/trino/var/dump
-              name: dump-volume
+            - mountPath: /data/persistent
+              name: persistent-volume
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}

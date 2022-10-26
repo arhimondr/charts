@@ -26,6 +26,7 @@ spec:
       securityContext:
         runAsUser: {{ .runAsUser }}
         runAsGroup: {{ .runAsGroup }}
+        fsGroup: {{ .fsGroup }}
       {{- end }}
       volumes:
         - name: config-volume
@@ -44,7 +45,7 @@ spec:
           secret:
             secretName: trino-password-authentication
         {{- end }}
-        - name: dump-volume
+        - name: persistent-volume
           emptyDir: {}
       {{- if .Values.initContainers.coordinator }}
       initContainers:
@@ -80,8 +81,8 @@ spec:
             - mountPath: {{ .Values.server.config.path }}/auth
               name: password-volume
             {{- end }}
-            - mountPath: /data/trino/var/dump
-              name: dump-volume
+            - mountPath: /data/persistent
+              name: persistent-volume
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
