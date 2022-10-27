@@ -47,6 +47,8 @@ spec:
           secret:
             secretName: trino-password-authentication
         {{- end }}
+        - name: heapdumpfuse
+          emptyDir: {}
       {{- if .Values.initContainers.coordinator }}
       initContainers:
       {{-  tpl (toYaml .Values.initContainers.coordinator) . | nindent 6 }}
@@ -83,6 +85,9 @@ spec:
             - mountPath: {{ .Values.server.config.path }}/auth
               name: password-volume
             {{- end }}
+            - mountPath: /tmp/heapdumpfuse
+              name: heapdumpfuse
+              mountPropagation: HostToContainer
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -107,6 +112,16 @@ spec:
             successThreshold: {{ .Values.coordinator.readinessProbe.successThreshold | default 1 }}
           resources:
             {{- toYaml .Values.coordinator.resources | nindent 12 }}
+        - name: {{ .Chart.Name }}-heapdumpfuse
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ['sh', '-c', 'echo "Hello, Kubernetes!" && sleep 36000']
+          volumeMounts:
+            - mountPath: /tmp/heapdumpfuse
+              name: heapdumpfuse
+              mountPropagation: Bidirectional
+          securityContext:
+            privileged: true
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
