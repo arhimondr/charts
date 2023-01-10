@@ -34,6 +34,8 @@ spec:
         - name: schemas-volume
           configMap:
             name: schemas-volume-worker
+        - name: heapdumps
+          emptyDir: {}
       {{- if .Values.initContainers.worker }}
       initContainers:
       {{-  tpl (toYaml .Values.initContainers.worker) . | nindent 6 }}
@@ -53,6 +55,8 @@ spec:
               name: catalog-volume
             - mountPath: {{ .Values.kafka.mountPath }}
               name: schemas-volume
+            - mountPath: /heapdumps
+              name: heapdumps
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -77,6 +81,7 @@ spec:
             successThreshold: {{ .Values.worker.readinessProbe.successThreshold | default 1 }}
           resources:
             {{- toYaml .Values.worker.resources | nindent 12 }}
+      terminationGracePeriodSeconds: 1200
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

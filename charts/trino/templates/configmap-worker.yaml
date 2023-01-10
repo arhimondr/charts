@@ -26,6 +26,7 @@ data:
     -XX:+UseGCOverheadLimit
     -XX:+ExplicitGCInvokesConcurrent
     -XX:+HeapDumpOnOutOfMemoryError
+    -XX:HeapDumpPath=/heapdumps/heapdump.hprof
     -XX:+ExitOnOutOfMemoryError
     -Djdk.attach.allowAttachSelf=true
     -XX:-UseBiasedLocking
