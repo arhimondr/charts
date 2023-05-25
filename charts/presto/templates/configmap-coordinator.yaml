@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "presto.coordinator" . }}
+  labels:
+    app: presto
+    chart: {{ template "presto.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: coordinator
+data:
+  node.properties: |
+    node.environment=testing
+    node.data-dir=/var/lib/presto/data/
+
+  jvm.config: |
+    -server
+    -Xmx{{ .Values.coordinator.jvm.maxHeapSize }}
+    -XX:+UseG1GC
+    -XX:G1HeapRegionSize=32M
+    -XX:+UseGCOverheadLimit
+    -XX:+ExplicitGCInvokesConcurrent
+    -XX:+HeapDumpOnOutOfMemoryError
+    -XX:+ExitOnOutOfMemoryError
+    -Djdk.attach.allowAttachSelf=true
+  {{- range $configValue := .Values.coordinator.additionalJVMConfig }}
+    {{ $configValue }}
+  {{- end }}
+
+  config.properties: |
+    coordinator=true
+    node-scheduler.include-coordinator=false
+    http-server.http.port=8080
+    query.max-memory={{ .Values.coordinator.config.query.maxMemory }}
+    query.max-total-memory-per-node={{ .Values.coordinator.config.query.maxMemoryPerNode }}
+    memory.heap-headroom-per-node={{ .Values.coordinator.config.memory.heapHeadroomPerNode }}
+    discovery-server.enabled=true
+    discovery.uri=http://localhost:8080
+    parse-decimal-literals-as-double=true
+    regex-library=RE2J
+    offset-clause-enabled=true
+    optimizer.optimize-hash-generation=false
+  {{- range $configValue := .Values.coordinator.additionalConfigProperties }}
+    {{ $configValue }}
+  {{- end }}
+  

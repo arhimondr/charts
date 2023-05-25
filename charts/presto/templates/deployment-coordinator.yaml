@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "presto.coordinator" . }}
+  labels:
+    app: presto
+    chart: {{ template "presto.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: coordinator
+spec:
+  selector:
+    matchLabels:
+      app: presto
+      release: {{ .Release.Name }}
+      component: coordinator
+  template:
+    metadata:
+      labels:
+        app: presto
+        release: {{ .Release.Name }}
+        component: coordinator
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      volumes:
+        - name: config-volume
+          configMap:
+            name: {{ template "presto.coordinator" . }}
+        - name: catalog-volume
+          configMap:
+            name: {{ template "presto.catalog" . }}
+      containers:
+        - name: {{ .Chart.Name }}-coordinator
+          command: ["/opt/presto-server/bin/launcher", "run"]
+          image: "{{ .Values.coordinator.image.repository }}:{{ .Values.coordinator.image.tag}}"
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /opt/presto-server/etc
+              name: config-volume
+            - mountPath: /opt/presto-server/etc/catalog
+              name: catalog-volume
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /v1/info
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+            successThreshold: 1
+          readinessProbe:
+            httpGet:
+              path: /v1/info
+              port: http
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6
+            successThreshold: 1
+          resources:
+            {{- toYaml .Values.coordinator.resources | nindent 12 }}
+      terminationGracePeriodSeconds: 1200

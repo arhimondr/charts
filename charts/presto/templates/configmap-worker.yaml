@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "presto.worker" . }}
+  labels:
+    app: presto
+    chart: {{ template "presto.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    component: worker
+data:
+  node.properties: |
+    node.environment=testing
+    node.location=testing-location
+    node.id=e4901aae-a1c9-4ff7-97a9-5687835ad54c
+    node.memory_gb={{ .Values.worker.config.memoryGB }}
+
+  config.properties: |
+    http-server.http.port=8081
+    discovery.uri=http://{{ template "presto.service.name" . }}:8080
+    shutdown-onset-sec=1
+    presto.version=0.282-SNAPSHOT-64f18eb
+  {{- range $configValue := .Values.worker.additionalConfigProperties }}
+    {{ $configValue }}
+  {{- end }}
