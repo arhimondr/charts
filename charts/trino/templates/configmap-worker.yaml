@@ -29,7 +29,6 @@ data:
     -XX:HeapDumpPath=/heapdumps/heapdump.hprof
     -XX:+ExitOnOutOfMemoryError
     -Djdk.attach.allowAttachSelf=true
-    -XX:-UseBiasedLocking
     -XX:ReservedCodeCacheSize=512M
     -XX:PerMethodRecompilationCutoff=10000
     -XX:PerBytecodeRecompilationCutoff=10000
