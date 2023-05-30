@@ -12,7 +12,6 @@ data:
   node.properties: |
     node.environment=testing
     node.location=testing-location
-    node.id=e4901aae-a1c9-4ff7-97a9-5687835ad54c
     node.memory_gb={{ .Values.worker.config.memoryGB }}
 
   config.properties: |
