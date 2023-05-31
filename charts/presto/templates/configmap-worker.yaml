@@ -18,7 +18,8 @@ data:
     http-server.http.port=8081
     discovery.uri=http://{{ template "presto.service.name" . }}:8080
     shutdown-onset-sec=1
-    presto.version=0.282-SNAPSHOT-64f18eb
+    presto.version={{ .Values.worker.config.coordinator.version }}
+    query.max-memory-per-node={{ .Values.worker.config.query.maxMemoryPerNode }}
   {{- range $configValue := .Values.worker.additionalConfigProperties }}
     {{ $configValue }}
   {{- end }}
